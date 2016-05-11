@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="App">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="angular/angular.js"></script>
+</head>
+<style>
+    .title{
+        color: blue;
+        font-size: 20px;
+    }
+</style>
+<body  >
+   <div ng-controller="controllerOne">
+       <!--父级scope  {{user.name}}<input type="text" ng-model="user.name">-->
+       父级scope  {{person}}<input type="text" ng-model="person">
+       <outer >
+           <inner1 user="user" title={{title}} tip="hexuemei" action2=outerAction2() mycolor="blue" mysty="111">
+              我是主题
+           </inner1>
+           <inner2 ></inner2>
+       </outer>
+   </div>
+
+</body>
+</html>
+<script>
+    var app = angular.module("App",[]);
+
+    app.controller("mainController", function ($scope) {
+        $scope.things = [1,2,3,4];
+        $scope.title="点击这里";
+        $scope.text="内部的内容";
+    });
+    app.directive("hello", function () {
+        return {
+            restrict:'E',
+            template:
+            "<div>"+
+            "<div class='title' ng-click='toggle()' >{{title}}</div>" +
+            "<div class='body' ng-if='showMe' ng-transclude></div>"+
+            +"</div>",
+            replace:true,
+            transclude:true,
+            scope:{
+                title:"=parentTitle"
+            },
+            link: function (scope) {
+                scope.showMe=false;
+                scope.toggle= function () {
+                    scope.showMe=!scope.showMe;
+                }
+            }
+        }
+    });
+
+
+    app.controller("controllerOne", function ($scope) {
+            $scope.user={
+                name:"贺雪梅"
+            };
+            $scope.person="hxm";
+
+            $scope.title="Hello wellcome!";
+            $scope.outerAction2= function () {
+                alert("main通信");
+            };
+
+    });
+    app.directive("outer",function(){
+        return {
+            restrict:"E",
+            transclude:true,
+
+            template:"outer的name:{{user.name}}<input type='text' ng-model='user.name'><div ng-transclude></div>",
+            controller: function ($scope) {
+//                $scope.user={
+//                    name:"outer--inner1"
+//                };
+
+                this.say=function (some){
+                    console.log(some.message);
+                };
+                this.outerAction= function () {
+                    alert("执行outer的事件");
+                };
+                $scope.outerAction2= function () {//如果注释掉这个函数,则会打印alert("main通信");
+                    alert("outer通信");
+                }
+            }
+        }
+    });
+    app.directive("inner1", function () {
+        return {
+            restrict:"E",
+            transclude:true,
+            template:"<h1 class='title'>{{title}}</h1><span style='color:red'>{{tip}}</span><div ng-transclude></div>"+
+            "<input type='button' value='点击1' ng-click='action()'></br>"+
+            "<input type='button' value='点击2' ng-click='action2()'></br>"+
+            "inner1的name:{{user.name}}<input type='text' ng-model='user.name'></br>",
+            require:"^outer",
+            scope:{
+                //@ 表示与父级controller是单向绑定,父级改变会影响子级的值;但子级改变不会影响父级的值
+                //& 表示在子级触发事件,在父级执行函数
+                //= 表示与父级controller是双向绑定,互相影响
+                title:"@",
+                tip:"@",
+                action:"&",
+                action2:"&",
+                user:'='
+
+            },
+            link: function (scope, elem, attrs, controllerInstance) {
+                console.log("link");
+                scope.message="我是inner One";
+                scope.action= function () {
+                    controllerInstance.outerAction();
+                };
+                controllerInstance.say(scope);
+                var b = angular.element("<div>");
+                b.css({'width':"100px","height":"50px","border":"1px solid red"});
+                b.text("我是div");
+                elem.append(b);
+            },
+            //先执行controller函数,再执行link函数
+            controller: function ($scope,$attrs,$transclude,$element) {
+                console.log("controller");
+                $transclude(function (clone) {
+                    var a = angular.element("<p>");
+                    a.text(clone.text());
+                    a.css({color:$attrs.mycolor});
+                    $element.append(a);
+                });
+                console.log($attrs.mysty);
+                var b = angular.element("<div>");
+                b.css({'width':"100px","height":"50px","border":"1px solid green"});
+                b.text("我是div");
+                $element.append(b);
+
+            }
+        }
+    });
+    app.directive("inner2", function () {
+        return {
+            restrict:"E",
+            require:"^outer",
+            //scope:true,当继承的是对象时,那么true与false效果都一样,即父级与子级是相互改变的
+            scope:true,
+            template:"inner2的id:{{person}}<input type='text' ng-model='person'>",
+            link: function (scope, elem, attrs, controllerInstance) {
+                scope.message="我是inner Two";
+                controllerInstance.say(scope);
+            }
+        }
+    });
+
+</script>

@@ -1,0 +1,35 @@
+<style>
+    .content{
+        width: 400px;
+        /*height: 100px;*/
+        /*border:1px solid red;*/
+        margin:50px auto;
+    }
+</style>
+
+<div class="content">
+    <div class="menu">
+        <input type="button" data="1" value="菜单一" ng-click="showSibling($event)">
+        <ul style="margin: 0;"  data="1">
+            <li>hxm1</li>
+            <li>hxm2</li>
+            <li>hxm3</li>
+        </ul>
+    </div>
+    <div class="menu">
+        <input type="button"  data="2" value="菜单二" ng-click="showSibling($event)">
+        <ul  style="margin: 0;" data="2">
+            <li>hxm01</li>
+            <li>hxm02</li>
+            <li>hxm03</li>
+        </ul>
+    </div>
+    <div class="menu">
+        <input type="button" data="3" value="菜单三" ng-click="showSibling($event)">
+        <ul  style="margin: 0;" data="3">
+            <li>hxm3</li>
+            <li>hxm3</li>
+            <li>hxm3</li>
+        </ul>
+    </div>
+</div>

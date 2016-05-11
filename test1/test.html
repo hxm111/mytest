@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="App">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+    <script src="angular/angular.js"></script>
+    <script src="jquery.min.js"></script>
+</head>
+<style>
+
+</style>
+<body ng-controller="mainController">
+    <auction>
+        <expander ng-repeat="expander in expanders" title="expander.title" >
+             {{expander.text}}
+        </expander>
+    </auction>
+</body>
+</html>
+<script>
+    var app = angular.module("App",[]);
+    app.controller("mainController", function ($scope) {
+            $scope.expanders=[
+                {
+                    title:"菜单1",
+                    text:"我是菜单一我是菜单一我是菜单一",
+
+                },
+                {
+                    title:"菜单2",
+                    text:"我是菜单一我是菜单一我是菜单一",
+
+                },
+                {
+                    title:"菜单3",
+                    text:"我是菜单一我是菜单一我是菜单一",
+
+                }
+            
+            ];
+            $scope.mainShow= function () {
+                
+            }
+    });
+    app.directive("auction", function () {
+        return {
+            restrict:"E",
+            transclude:true,
+            template:"<div ng-transclude></div>",
+            controller: function () {
+                var scopes=[];
+                this.getOpen= function (selectScope) {
+                    angular.forEach(scopes, function (scopeone) {
+                        if(scopeone!=selectScope){
+                            scopeone.showMe=false;
+                        }
+                    });
+                };
+                this.addScope= function (scopeone) {
+                    scopes.push(scopeone);
+                }
+            }
+        }
+    });
+    app.directive("expander", function () {
+        return {
+            restrict:"E",
+            transclude:true,
+            template:"<div>" +
+            "<h1 id='hhh' ng-click='showThis()'>{{title}}</h1><div ng-if='showMe' ng-transclude></div></div>",
+            scope:{
+                title:"@",
+                text:"@",
+            },
+            require:"^auction",
+            link: function ($scope,attr,element,auctionController) {
+
+                $scope.showThis= function () {
+                    $scope.showMe=!$scope.showMe;
+                    auctionController.addScope($scope);
+                    auctionController.getOpen($scope);
+
+
+                }
+            }
+        }
+    });
+
+</script>
